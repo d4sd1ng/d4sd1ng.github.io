@@ -144,6 +144,18 @@
         <h1>🎥 YouTube Automations - TikTok API Demo</h1>
         <p class="subtitle">TikTok Integration Demonstration</p>
         
+        <!-- Auto-Demo Controls -->
+        <div style="text-align: center; margin: 30px 0; padding: 20px; background: #e3f2fd; border-radius: 10px;">
+            <h2 style="color: #2196f3; margin-bottom: 15px;">Automatische Demo</h2>
+            <p style="margin-bottom: 15px;">Klicke auf "Demo Starten" um automatisch durch alle Schritte zu gehen</p>
+            <button onclick="startAutoDemo()" style="background: #4caf50; font-size: 18px; padding: 15px 40px;">
+                ▶️ Demo Starten
+            </button>
+            <button onclick="stopAutoDemo()" style="background: #f44336; font-size: 18px; padding: 15px 40px; margin-left: 10px;">
+                ⏹️ Demo Stoppen
+            </button>
+        </div>
+        
         <!-- Section 1: OAuth Login -->
         <div class="section">
             <h2>1. TikTok Account Verbinden</h2>
@@ -214,7 +226,7 @@
             const btn = document.getElementById('connectBtn');
             btn.disabled = true;
             btn.textContent = 'Connecting...';
-            
+
             // Simuliere OAuth Redirect
             setTimeout(() => {
                 document.getElementById('userInfo').style.display = 'block';
@@ -223,7 +235,7 @@
                 document.getElementById('userAvatar').textContent = 'TT';
                 btn.textContent = 'Connected ✓';
                 connected = true;
-                
+
                 // Zeige Status
                 showStatus('userInfo', 'Account erfolgreich verbunden! OAuth 2.0 Flow abgeschlossen.', 'success');
             }, 1500);
@@ -242,17 +254,17 @@
                 alert('Bitte zuerst TikTok Account verbinden!');
                 return;
             }
-            
+
             const title = document.getElementById('videoTitle').value;
             const description = document.getElementById('videoDescription').value;
-            
+
             if (!title) {
                 alert('Bitte Titel eingeben!');
                 return;
             }
-            
+
             showStatus('uploadStatus', '⏳ Video wird hochgeladen... (video.upload)', '');
-            
+
             // Simuliere Upload
             setTimeout(() => {
                 uploadedVideoId = 'tiktok_video_' + Date.now();
@@ -266,9 +278,9 @@
                 alert('Bitte zuerst Video hochladen!');
                 return;
             }
-            
+
             showStatus('publishStatus', '⏳ Video wird veröffentlicht... (video.publish)', '');
-            
+
             // Simuliere Publishing
             setTimeout(() => {
                 showStatus('publishStatus', `✅ Video erfolgreich veröffentlicht! TikTok URL: https://www.tiktok.com/@tiktok_user/video/${uploadedVideoId}`, 'success');
@@ -280,10 +292,10 @@
                 alert('Bitte zuerst TikTok Account verbinden!');
                 return;
             }
-            
+
             const listDiv = document.getElementById('videoList');
             listDiv.innerHTML = '<p>⏳ Lade Videos... (video.list)</p>';
-            
+
             // Simuliere API Call
             setTimeout(() => {
                 const videos = [
@@ -291,7 +303,7 @@
                     { id: '124', title: 'Tutorial Video', views: 3200, likes: 250 },
                     { id: '125', title: 'Funny Clip', views: 8500, likes: 890 }
                 ];
-                
+
                 listDiv.innerHTML = videos.map(video => `
                     <div class="video-item">
                         <h3>${video.title}</h3>
@@ -300,7 +312,7 @@
                         <p style="font-size: 10px; color: #999;">ID: ${video.id}</p>
                     </div>
                 `).join('');
-                
+
                 showStatus('videoList', '✅ Videos erfolgreich geladen!', 'success');
             }, 1500);
         }
@@ -310,10 +322,10 @@
                 alert('Bitte zuerst TikTok Account verbinden!');
                 return;
             }
-            
+
             const analyticsDiv = document.getElementById('analyticsData');
             analyticsDiv.innerHTML = '<p>⏳ Lade Analytics... (video.data)</p>';
-            
+
             // Simuliere API Call
             setTimeout(() => {
                 analyticsDiv.innerHTML = `
