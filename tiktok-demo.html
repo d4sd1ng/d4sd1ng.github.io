@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="tiktok-site-verification" content="skYG77z6KDCVBd4ogkyRUoR1Bgwq5kYy">
+    <title>TikTok API Demo - YouTube Automations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        .status.success {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+        .status.error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        .video-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .video-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .video-item h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .video-item p {
+            font-size: 12px;
+            color: #666;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            background: #f8f9fa;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 YouTube Automations - TikTok API Demo</h1>
+        <p class="subtitle">TikTok Integration Demonstration</p>
+        
+        <!-- Section 1: OAuth Login -->
+        <div class="section">
+            <h2>1. TikTok Account Verbinden</h2>
+            <p>Verbinde dein TikTok-Konto über OAuth 2.0</p>
+            <button id="connectBtn" onclick="connectTikTok()">Connect TikTok Account</button>
+            <div id="userInfo" style="display: none;">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div>
+                        <strong id="userName">User Name</strong><br>
+                        <span id="userDisplayName" style="color: #666;">Display Name</span>
+                    </div>
+                </div>
+                <div class="status success">
+                    ✅ Account erfolgreich verbunden! (Scope: user.info.basic)
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Video Upload -->
+        <div class="section">
+            <h2>2. Video Hochladen</h2>
+            <p>Lade ein Video hoch und veröffentliche es auf TikTok</p>
+            <div class="upload-area">
+                <p>📹 Video auswählen</p>
+                <input type="file" id="videoFile" accept="video/*" onchange="handleFileSelect()">
+                <div id="uploadForm" style="display: none; margin-top: 20px;">
+                    <input type="text" id="videoTitle" placeholder="Video Titel">
+                    <textarea id="videoDescription" placeholder="Video Beschreibung"></textarea>
+                    <input type="text" id="videoHashtags" placeholder="Hashtags (mit #)">
+                    <button onclick="uploadVideo()">Video Hochladen (video.upload)</button>
+                </div>
+            </div>
+            <div id="uploadStatus"></div>
+        </div>
+
+        <!-- Section 3: Video Publishing -->
+        <div class="section">
+            <h2>3. Video Veröffentlichen</h2>
+            <p>Veröffentliche das hochgeladene Video auf TikTok</p>
+            <button id="publishBtn" onclick="publishVideo()" disabled>Video Veröffentlichen (video.publish)</button>
+            <div id="publishStatus"></div>
+        </div>
+
+        <!-- Section 4: Video Liste -->
+        <div class="section">
+            <h2>4. Video Liste Abrufen</h2>
+            <p>Zeige alle deine TikTok-Videos</p>
+            <button onclick="loadVideoList()">Videos Laden (video.list)</button>
+            <div id="videoList" class="video-list"></div>
+        </div>
+
+        <!-- Section 5: Video Analytics -->
+        <div class="section">
+            <h2>5. Video Analytics</h2>
+            <p>Zeige Analytics für ein Video</p>
+            <button onclick="loadVideoAnalytics()">Analytics Laden (video.data)</button>
+            <div id="analyticsData"></div>
+        </div>
+    </div>
+
+    <script>
+        let connected = false;
+        let uploadedVideoId = null;
+
+        // Simuliere OAuth Flow
+        function connectTikTok() {
+            const btn = document.getElementById('connectBtn');
+            btn.disabled = true;
+            btn.textContent = 'Connecting...';
+            
+            // Simuliere OAuth Redirect
+            setTimeout(() => {
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('userName').textContent = '@tiktok_user';
+                document.getElementById('userDisplayName').textContent = 'TikTok Test User';
+                document.getElementById('userAvatar').textContent = 'TT';
+                btn.textContent = 'Connected ✓';
+                connected = true;
+                
+                // Zeige Status
+                showStatus('userInfo', 'Account erfolgreich verbunden! OAuth 2.0 Flow abgeschlossen.', 'success');
+            }, 1500);
+        }
+
+        function handleFileSelect() {
+            const file = document.getElementById('videoFile').files[0];
+            if (file) {
+                document.getElementById('uploadForm').style.display = 'block';
+                showStatus('uploadStatus', `Datei ausgewählt: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`, 'success');
+            }
+        }
+
+        function uploadVideo() {
+            if (!connected) {
+                alert('Bitte zuerst TikTok Account verbinden!');
+                return;
+            }
+            
+            const title = document.getElementById('videoTitle').value;
+            const description = document.getElementById('videoDescription').value;
+            
+            if (!title) {
+                alert('Bitte Titel eingeben!');
+                return;
+            }
+            
+            showStatus('uploadStatus', '⏳ Video wird hochgeladen... (video.upload)', '');
+            
+            // Simuliere Upload
+            setTimeout(() => {
+                uploadedVideoId = 'tiktok_video_' + Date.now();
+                showStatus('uploadStatus', `✅ Video erfolgreich hochgeladen! Video ID: ${uploadedVideoId}`, 'success');
+                document.getElementById('publishBtn').disabled = false;
+            }, 2000);
+        }
+
+        function publishVideo() {
+            if (!uploadedVideoId) {
+                alert('Bitte zuerst Video hochladen!');
+                return;
+            }
+            
+            showStatus('publishStatus', '⏳ Video wird veröffentlicht... (video.publish)', '');
+            
+            // Simuliere Publishing
+            setTimeout(() => {
+                showStatus('publishStatus', `✅ Video erfolgreich veröffentlicht! TikTok URL: https://www.tiktok.com/@tiktok_user/video/${uploadedVideoId}`, 'success');
+            }, 2000);
+        }
+
+        function loadVideoList() {
+            if (!connected) {
+                alert('Bitte zuerst TikTok Account verbinden!');
+                return;
+            }
+            
+            const listDiv = document.getElementById('videoList');
+            listDiv.innerHTML = '<p>⏳ Lade Videos... (video.list)</p>';
+            
+            // Simuliere API Call
+            setTimeout(() => {
+                const videos = [
+                    { id: '123', title: 'Mein erstes Video', views: 1500, likes: 120 },
+                    { id: '124', title: 'Tutorial Video', views: 3200, likes: 250 },
+                    { id: '125', title: 'Funny Clip', views: 8500, likes: 890 }
+                ];
+                
+                listDiv.innerHTML = videos.map(video => `
+                    <div class="video-item">
+                        <h3>${video.title}</h3>
+                        <p>👁️ ${video.views} Views</p>
+                        <p>❤️ ${video.likes} Likes</p>
+                        <p style="font-size: 10px; color: #999;">ID: ${video.id}</p>
+                    </div>
+                `).join('');
+                
+                showStatus('videoList', '✅ Videos erfolgreich geladen!', 'success');
+            }, 1500);
+        }
+
+        function loadVideoAnalytics() {
+            if (!connected) {
+                alert('Bitte zuerst TikTok Account verbinden!');
+                return;
+            }
+            
+            const analyticsDiv = document.getElementById('analyticsData');
+            analyticsDiv.innerHTML = '<p>⏳ Lade Analytics... (video.data)</p>';
+            
+            // Simuliere API Call
+            setTimeout(() => {
+                analyticsDiv.innerHTML = `
+                    <div class="status success">
+                        <h3>Video Analytics</h3>
+                        <p>📊 Views: 1,500</p>
+                        <p>❤️ Likes: 120</p>
+                        <p>💬 Comments: 45</p>
+                        <p>🔄 Shares: 23</p>
+                        <p>⏱️ Watch Time: 2.5 min</p>
+                        <p>📈 Engagement Rate: 12.5%</p>
+                    </div>
+                `;
+            }, 1500);
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (type === 'success') {
+                element.innerHTML = `<div class="status success">${message}</div>`;
+            } else if (type === 'error') {
+                element.innerHTML = `<div class="status error">${message}</div>`;
+            } else {
+                element.innerHTML = `<div class="status">${message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
